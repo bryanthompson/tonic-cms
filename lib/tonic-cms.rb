@@ -31,31 +31,66 @@ module Tonic
 
     def self.update_resource_connections
       Tonic::Tag.set_connection self.connection
+      Tonic::Database.set_connection self.connection
     end 
   end
 
   class Tag
     include RestResource::Model
     attr_reader :created_at, :updated_at
-    attr_accessor :field_type, :key, :value, :page_id
+    attr_accessor :field_type, :key, :value, :page_id, :options
     
     def self.all
       self.request(:get, "/content_tags")
     end    
 
     def self.get(key)
-      self.request(:get, "/content_tags/#{key}")
+      self.request(:get, "/content_tags/#{key}").tag
     end    
     
     def self.set(key, field_type, value, options = {})
       options.merge!(:key => key, :value => value, :field_type => field_type)
-      self.request(:post, "/content_tags", options)
+      self.request(:post, "/content_tags", options).tag
     end
+    
+    def self.delete(key)
+      self.request(:delete, "/content_tags/#{key}")
+    end
+    
+    # text fields are sanitized for html/js/etc.
+    def self.text(value, options = {})
+      self.set(options[:key], "text", value, options)
+    end
+
+    # textile fields are sanitized and rendered to textile
+    def self.textile(value, options = {})
+      self.set(options[:key], "textile", value, options)
+    end
+
+    # html fields accept html, so... you might want to pre-whitelist on your own
+    def self.html(value, options = {})
+      self.set(options[:key], "html", value, options)
+    end
+    
   end
   
   class Database
+    include RestResource::Model
+    attr_reader :created_at, :updated_at
+    attr_accessor :title, :stub, :description, :fields
+
+    def self.all
+      self.request(:get, "/databases").list
+    end
+    
+    def self.get(stub)
+      self.request(:get, "/databases/#{stub}").database
+    end
   end
-  
+
+  class DbField
+  end 
+ 
   class Record
   end
 
