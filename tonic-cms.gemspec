@@ -6,10 +6,10 @@ Gem::Specification.new do |s|
   s.name        = "tonic-cms"
   s.version     = Tonic::Cms::VERSION
   s.authors     = ["Bryan Thompson"]
-  s.email       = ["bryan.thompson@firespring.com"]
+  s.email       = ["bryan@madebymarket.com"]
   s.homepage    = ""
-  s.summary     = %q{Client gem for the Tonic CMS}
-  s.description = %q{Client gem for the Tonic CMS}
+  s.summary     = %q{client gem for the tonic cms}
+  s.description = %q{client gem for the tonic cms}
 
   s.rubyforge_project = "tonic-cms"
 
