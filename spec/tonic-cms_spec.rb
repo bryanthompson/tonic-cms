@@ -44,8 +44,8 @@ describe Tonic::Cms do
       RestClient.should_receive(:get).and_return('{"list":[{"id":"4f8793f52aec135ad5000007","class":"tag","field_type":"text","key":"test-field","page":null},{"id":"4f88246c2aec135cdb000002","class":"tag","field_type":"text","key":"b60310","page":null},{"id":"4f88246f2aec135cdb000003","class":"tag","field_type":"text","key":"3c546f","page":null},{"id":"4f88524d2aec136331000003","class":"tag","field_type":"text","key":"test-tag","page":null}]}')
 
       res = Tonic::Tag.all
-      res.list[0].key.should == "test-field"
-      res.list[0].value.should == nil
+      res[0].key.should == "test-field"
+      res[0].value.should == nil
     end
     
     it "should get a specific tag" do
@@ -143,16 +143,42 @@ describe Tonic::Cms do
       db.stub.should == "test_db"
     end
        
-    it "should get records" do
-      db = Tonic::Database.get("test_db")
-      pending
+    it "should get records for a database" do
+      RestClient.should_receive(:get).and_return('{"list":[{"id":"4f517e162aec132e10000003","class":"record","field_one":"a","field_two":"b","field_three":"c","document":null},{"id":"4f517e1d2aec132e19000004","class":"record","field_one":"Another","field_two":"hrm","field_three":"okay","document":null},{"id":"4f517f362aec132e10000008","class":"record","field_one":"asdf","field_two":"1","field_three":"asdfasdf","document":null},{"id":"4f517f6d2aec132e1000000d","class":"record","field_one":"aabc","field_two":"688504","field_three":"asdfasdf","document":null},{"id":"4f517fa42aec132e1900000a","class":"record","field_one":"asdf","field_two":"11111","field_three":"asdf","document":null},{"id":"4f518cac2aec133326000018","class":"record","field_one":"a","field_two":"00000","field_three":"","document":null},{"id":"4f52f9512aec131310000006","class":"record","field_one":"","field_two":"12345","field_three":"","document":null},{"id":"4f603ac52aec1357a1000003","class":"record","field_one":"a","field_two":"b","field_three":"c","document":null},{"id":"4f60df5d2aec136e70000004","class":"record","field_one":"","field_two":"12345","field_three":"","document":""}]}')
+      records = Tonic::Record.where(:database => "test_db")
+      records.each.should be_an Enumerator
     end
 
-    # it should get a single record
-    # it should create a record
-    # it should update a record
-    # it should delete a record
-    # it should search records
+    it "should get a single record" do
+      RestClient.should_receive(:get).and_return('{"id":"4f517e162aec132e10000003","class":"record","field_one":"a","field_two":"b","field_three":"c","document":null}')
+      rec = Tonic::Record.get("test_db", "4f517e162aec132e10000003")
+      rec.should be_a Tonic::Record
+      rec.id.should == "4f517e162aec132e10000003"
+      rec.field_one.should == "a"
+    end
+
+    it "should create a record" do
+      RestClient.should_receive(:post).and_return('{"id":"4f88a3a22aec133927000008","class":"record","field_one":"y","field_two":"12345","field_three":null,"document":null}')
+      rec = Tonic::Record.create(:record => { :field_one => "y", :field_two => 12345}, :database => "test_db")
+      rec.field_one.should == "y"
+    end
+
+    
+    it "should delete a record" do
+      RestClient.should_receive(:get).and_return('{"id":"4f517e162aec132e10000003","class":"record","database":"test_db","field_one":"a","field_two":"b","field_three":"c","document":null}')
+      rec = Tonic::Record.get("test_db", "4f517e162aec132e10000003")
+      RestClient.should_receive(:delete).and_return('{"success":true}')
+      rec.delete.success?.should == true
+    end
+
+    it "should update a record" do
+      RestClient.should_receive(:post).and_return('{"id":"4f517e162aec132e10000003","class":"record","database":"test_db","field_one":"Updated!","field_two":"b","field_three":"c","document":null}')
+      rec = Tonic::Record.update("4f517e162aec132e10000003", {:database => "test_db", :record => {:field_one => "Updated!"}})
+      rec.field_one.should == "Updated!"
+    end
+
+    it "should search records"
+
     # it should paginate all list results
   end
 
