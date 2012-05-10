@@ -40,7 +40,7 @@ module Tonic
   class Tag
     include RestResource::Model
     attr_reader :created_at, :updated_at
-    attr_accessor :field_type, :key, :value, :page_id, :options
+    attr_accessor :field_type, :key, :value, :page_id, :options, :versions
     
     def self.all
       res = self.request(:get, "/content_tags")
@@ -53,8 +53,8 @@ module Tonic
     end    
     
     def self.set(key, field_type, value, options = {})
-      options.merge!(:key => key, :value => value, :field_type => field_type)
-      self.request(:post, "/content_tags", options).tag
+      merged_opts = {:key => key, :value => value, :field_type => field_type, :options => options}
+      self.request(:post, "/content_tags", merged_opts).tag
     end
     
     # TODO: Test
@@ -80,6 +80,16 @@ module Tonic
     # html fields accept html, so... you might want to pre-whitelist on your own
     def self.html(value, options = {})
       self.set(options[:key], "html", value, options)
+    end
+    
+    # image fields accept all sorts of images and options.
+    def self.image(value, options = {})
+      self.set(options[:key], "image", value, options)
+    end
+    
+    def src
+      return nil unless self.field_type == "image"
+      value["location"]
     end
     
   end

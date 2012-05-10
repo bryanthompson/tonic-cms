@@ -36,8 +36,8 @@ describe Tonic::Cms do
   context "with content tags" do
     before :each do 
       Tonic::Cms.api_key = "6cc58d33e1484addd0290758"
-      Tonic::Cms.service_url = "dev.v3.drinkyourtonic.com"
-      Tonic::Cms.service_port = 80
+      Tonic::Cms.service_url = "localhost"
+      Tonic::Cms.service_port = 8080
     end 
    
     it "should get all tags" do
@@ -116,7 +116,30 @@ describe Tonic::Cms do
     #it "should search tags by type"
     #it "should search tags by content"
 
-    # todo: image fields
+    it "should set an image field with an options/key block" do
+      i = File.open(File.join(File.dirname(__FILE__), "fixtures/landscape.jpeg"), "r")
+      tag = Tonic::Tag.image(i)
+      tag.src.should_not be_nil
+    end
+    it "should fill an image to a predictable size with options" do
+      i = File.open(File.join(File.dirname(__FILE__), "fixtures/landscape.jpeg"), "r")
+      tag = Tonic::Tag.image(i, { :key => "abcabc", :width => 450, :height => 50, :mode => "fill" })
+      tag.key.should == "abcabc"
+      # TODO: pull the image and look at the dimensions
+    end
+    it "should fit an image to a predictable size with options" do
+      i = File.open(File.join(File.dirname(__FILE__), "fixtures/landscape.jpeg"), "r")
+      tag = Tonic::Tag.image(i, { :key => "abcabc", :width => 450, :height => 250, :mode => "fit" })
+      tag.key.should == "abcabc"
+      # TODO: pull the image and look at the dimensions
+    end
+    it "should create versions of an image with options" do
+      i = File.open(File.join(File.dirname(__FILE__), "fixtures/landscape.jpeg"), "r")
+      tag = Tonic::Tag.image(i, { :key => "abcabc", :width => 450, :height => 250, :mode => "fit", 
+        :versions => { 0 => { :key => "aasdfjhsdf" }, 1 => { :key => "sdkjfh" }} })
+      pp tag.versions
+    end
+    
   end
   
   context "with pages"
