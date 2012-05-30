@@ -137,7 +137,7 @@ describe Tonic::Cms do
       i = File.open(File.join(File.dirname(__FILE__), "fixtures/landscape.jpeg"), "r")
       tag = Tonic::Tag.image(i, { :key => "abcabc", :width => 450, :height => 250, :mode => "fit", 
         :versions => { 0 => { :key => "aasdfjhsdf" }, 1 => { :key => "sdkjfh" }} })
-      pp tag.versions
+      tag.versions.length.should == 2
     end
     
   end
